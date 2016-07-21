@@ -1,15 +1,15 @@
-Taller con R
-================
-Norman Simón Rodríguez
-21 de julio de 2016
+---
+title: "Taller con R"
+author: "Norman Simón Rodríguez"
+date: "21 de julio de 2016"
+output: github_document
+---
 
-Ejercicio en R: evaluando una política pública
-==============================================
+# Ejercicio en R: evaluando una política pública
 
 En este taller estaremos trabajando con los datos de una evaluación de política pública realizada en Colombia hace unos años por el DNP (Departamento Nacional de Planeación) y la firma Econometría. El artículo puede ser descargado en este [link](https://github.com/normansimonr/ejercicio_R) (el archivo se llama `sinergia_educacion.pdf`) y los datos pueden ser encontrados en este link: <https://anda.dnp.gov.co/index.php/catalog/29/get_microdata>.
 
-Contexto de la evaluación
--------------------------
+## Contexto de la evaluación
 
 Entre 2009 y 2011 el Ministerio de Educación abrió el Fondo de Fomento a la Educación Media (FEM) para financiar programas de capacitación laboral a los estudiantes de la media vocacional. Estos programas fueron operados por instituciones de educación superior (IES), entre las cuales hubo varias universidades. También hubo programas de capacitación laboral por parte del SENA, mas estos no fueron financiados con el fondo FEM. Esta evaluación estima el impacto de la Estrategia de Articulación de la Educación Media, que incluye tanto las capacitaciones dadas a través del FEM como las que dio el SENA.
 
@@ -19,17 +19,15 @@ La evaluación mira si el programa afectó positivamente los resultados del SABE
 
 La evaluación se realizó en 2012, su informe final fue entregado en 2013 y la última actualización de microdatos fue en agosto de 2015.
 
-Cómo se calificará este taller
-------------------------------
+## Cómo se calificará este taller
 
 En este taller haremos varias gráficas a las cuales usted debe añadir su nombre para que puedan ser calificadas. También se pedirán pantallazos del código.
 
-Cargando y organizando los datos en R
--------------------------------------
+## Cargando y organizando los datos en R
 
 Vamos a cargar los datos de la encuesta principal. El archivo de datos se llama `encuestaA.csv` y se encuentra en la carpeta "data" (esta carpeta no se encuentra publicada en la versión GitHub de este ejercicio por motivos de propiedad intelectual).
 
-``` r
+```{r}
 encuestaA <- read.csv("./data/encuestaA.csv")
 ```
 
@@ -37,59 +35,44 @@ Vamos a mirar cómo mejoraron las capacidades de estos estudiantes. Por ejemplo,
 
 Vamos a invocar esta pregunta. Como son muchos datos (2600) sólo vamos a mirar los primeros. Para ello utilizamos la función `head()`:
 
-``` r
+```{r}
 head(encuestaA$M5_501B)
 ```
-
-    ## [1] 4 4 4 4 5 5
 
 Este vector incluye tanto a los egresados del grupo de control como a los del tratamiento. Para poder compararlos entre ellos debemos separarlos.
 
 La pregunta `M2_201` es la que nos dice si los estudiantes participaron en la Estrategia de Articulación o no. Entonces vamos a crear una nueva tabla que sólo incluya a los de tratamiento y otra que sólo incluya a los de control (vamos a partir en dos el objeto `encuestaA`).
 
 Grupo de tratamiento:
-
-``` r
+```{r}
 tratamiento <- subset(encuestaA, encuestaA$M2_201=="Si")
+
 ```
 
 Grupo de control:
-
-``` r
+```{r}
 control <- subset(encuestaA, encuestaA$M2_201=="No")
 control <- rbind(control, subset(encuestaA, is.na(encuestaA$M2_201)))
+
 ```
 
 Contemos cuántos jóvenes quedaron en cada grupo:
 
-``` r
+```{r}
+
 NROW(control)
-```
-
-    ## [1] 1268
-
-``` r
 NROW(tratamiento)
+
 ```
 
-    ## [1] 1351
-
-Un primer análisis
-------------------
+## Un primer análisis
 
 Ahora volvamos a mirar la pregunta anterior (capacidad para aplicar lo aprendido):
 
-``` r
+```{r}
 head(tratamiento$M5_501B)
-```
-
-    ## [1] 4 4 5 5 3 5
-
-``` r
 head(control$M5_501B)
 ```
-
-    ## [1] 3 5 4 5 4 5
 
 Esta información no es tan útil todavía. Ahora vamos a hacer un histograma para mirar cómo se distribuyen los datos.
 
@@ -97,29 +80,28 @@ Esta información no es tan útil todavía. Ahora vamos a hacer un histograma pa
 
 Primero entre los jóvenes del grupo de tratamiento:
 
-``` r
+```{r}
 hist(tratamiento$M5_501B
      , col="gray"
      , main="Histograma de capacidad de aplicar (Trat.)"
      , xlab="1: baja, 5: alta"
      , sub="Mi nombre")
-```
 
-![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+```
 
 Ahora exporte el gráfico haciendo clic en `Export` en el panel de gráficos. Guárdelo en el computador. Al final de la clase deberá enviar estos gráficos al profesor como prueba de su participación en el taller.
 
 Haremos lo mismo con el grupo de control:
 
-``` r
+
+```{r}
 hist(control$M5_501B
      , col="gray"
      , main="Histograma de capacidad de aplicar (Cont.)"
      , xlab="1: baja, 5: alta"
      , sub="Mi nombre")
-```
 
-![](README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+```
 
 Exporte este gráfico también.
 
@@ -130,73 +112,46 @@ Pregunta: ¿Hay una diferencia sustancial entre el grupo de tratamiento y el gru
 Mirando el histograma no vemos gran diferencia, lo cual significa que en este componente la política no tuvo efectos detectables. Corroboremos esto hallando la media y la desviación estándar. En estos códigos reemplace las palabras `Mi Nombre` con su nombre después del signo `#`.
 
 Las medias:
-
-``` r
+```{r}
 # Mi nombre
 mean(tratamiento$M5_501B)
-```
-
-    ## [1] 4.059956
-
-``` r
 mean(control$M5_501B)
-```
 
-    ## [1] 4.119874
+```
 
 Y las desviaciones estándar:
 
-``` r
+```{r}
 # Mi Nombre
 sd(tratamiento$M5_501B)
-```
-
-    ## [1] 0.7991401
-
-``` r
 sd(control$M5_501B)
-```
 
-    ## [1] 0.7661851
+```
 
 Tome un pantallazo del código (incluyendo los resultados) y guárdelo. Más tarde deberá enviarlo al profesor.
 
+
 Como la distribución es asimétrica podríamos buscar más bien la mediana y la desviación mediana absoluta. Las medianas:
 
-``` r
+```{r}
 # Mi Nombre
 median(tratamiento$M5_501B)
-```
-
-    ## [1] 4
-
-``` r
 median(control$M5_501B)
 ```
 
-    ## [1] 4
-
 Las desviaciones medianas absolutas:
 
-``` r
+```{r}
 # Mi Nombre
 mad(tratamiento$M5_501B)
-```
-
-    ## [1] 1.4826
-
-``` r
 mad(control$M5_501B)
 ```
-
-    ## [1] 1.4826
 
 Guarde también el pantallazo de este código.
 
 Estos resultados son consistentes con el informe presentado por el DNP y Econométrica, que nos dicen que el impacto en este componente fue nulo.
 
-Segundo análisis
-----------------
+## Segundo análisis
 
 Según el informe final, hubo un impacto positivo en la continuidad educativa, es decir, el porcentaje de egresados que siguió estudiando. En otras palabras, los egresados del grupo de tratamiento tuvieron una mayor tendencia a seguir sus estudios. Confirmemos esta información.
 
@@ -204,7 +159,7 @@ La pregunta "¿En la actualidad estudia?" es la número `M4_401`.
 
 Esta vez haremos diagramas de barras, ambos en la misma ventana (no olvide ingresar su nombre):
 
-``` r
+```{r}
 par(mfrow=c(1, 2))
 barplot(table(tratamiento$M4_401)
         , main="M4_401 (Trat.)"
@@ -212,8 +167,7 @@ barplot(table(tratamiento$M4_401)
 barplot(table(control$M4_401)
         , main="M4_401 (Control.)"
         , sub="Mi nombre")
-```
 
-![](README_files/figure-markdown_github/unnamed-chunk-13-1.png)
+```
 
 Vemos que comparativamente los del grupo de tratamiento tuvieron mayor propensión a seguir estudiando. Hay una diferencia entre ambos grupos, lo cual confirma la afirmación del informe final.
